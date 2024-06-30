@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 <head>
     <title>Register User</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <script>
         function showFields() {
             const role = document.getElementById('role').value;
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
     </script>
+    
 </head>
 <body>
     <form method="POST" action="" enctype="multipart/form-data">
@@ -106,5 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
         <button type="submit">Register</button>
     </form>
+    <a href="dashboard.php">Back to Dashboard</a>
+    <footer>
+        <p>Developed by Nischal Baidar</p>
+    </footer>
 </body>
 </html>

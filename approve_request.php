@@ -34,7 +34,9 @@ $result = $conn->query($sql);
 <html>
 <head>
     <title>Approve Requests</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
+
 <body>
     <table border="1">
         <tr>
@@ -82,5 +84,9 @@ $result = $conn->query($sql);
             </tr>
         <?php } ?>
     </table>
+    <a href="dashboard.php">Back to Dashboard</a>
+    <footer>
+        <p>Developed by Nischal Baidar</p>
+    </footer>
 </body>
 </html>

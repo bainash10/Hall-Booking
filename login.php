@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 <head>
     <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
     <form method="POST" action="">
@@ -29,5 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Password: <input type="password" name="password" required><br>
         <button type="submit">Login</button>
     </form>
+    <footer>
+        <p>Developed by Nischal Baidar</p>
+    </footer>
 </body>
 </html>
