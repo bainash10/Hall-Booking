@@ -34,9 +34,7 @@ $user = $_SESSION['user'];
             <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])) { ?>
             <li><a href="view_bookings.php">My Bookings</a></li>
             <?php } ?>
-            <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])) { ?>
-                <li><a href="edit_booking.php">Edit Booking</a></li>
-            <?php } ?>
+            
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </nav>

@@ -14,14 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $start_time = $_POST['start_time'];
     $end_time = $_POST['end_time'];
     $letter = addslashes(file_get_contents($_FILES['letter']['tmp_name']));
-
     $user_id = $_SESSION['user']['id'];
 
     $sql = "INSERT INTO bookings (hall_id, user_id, event_name, speaker, start_time, end_time, letter) 
             VALUES ('$hall_id', '$user_id', '$event_name', '$speaker', '$start_time', '$end_time', '$letter')";
 
     if ($conn->query($sql) === TRUE) {
-        echo "Booking request submitted";
+        $booking_id = $conn->insert_id; // Get the auto-generated booking ID
+        echo "Booking request submitted successfully. Booking ID: $booking_id";
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
@@ -39,7 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Hall:
         <select name="hall_id" required>
             <?php
-            $sql = "SELECT * FROM halls WHERE college='" . ($_SESSION['user']['college'] == 'Khwopa Engineering College' ? 'Khwopa Engineering College' : 'Khwopa College of Engineering') . "'";
+            // Select halls based on the user's college
+            $college = $_SESSION['user']['college'];
+            $sql = "SELECT * FROM halls WHERE college='$college'";
             $result = $conn->query($sql);
             while ($row = $result->fetch_assoc()) {
                 echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
