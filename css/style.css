@@ -1,0 +1,17 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+form {
+    margin: 20px 0;
+}
+
+form input, form select, form button {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+hr {
+    margin: 20px 0;
+}
