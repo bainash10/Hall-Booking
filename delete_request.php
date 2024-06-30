@@ -3,47 +3,39 @@ include 'config.php';
 session_start();
 
 if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
+    header("HTTP/1.1 403 Forbidden");
+    exit("Error: Unauthorized access. Please log in.");
 }
 
-$user_role = $_SESSION['user']['role'];
-$message = '';
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($user_role == 'PRINCIPAL' || $user_role == 'HOD')) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user_role = $_SESSION['user']['role'];
     $booking_id = $_POST['booking_id'];
 
-    // Check if the user is authorized to delete the booking
-    $check_sql = "SELECT user_id FROM bookings WHERE id = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("i", $booking_id);
-    $check_stmt->execute();
-    $check_stmt->bind_result($requester_id);
-    $check_stmt->fetch();
-    $check_stmt->close();
-
-    // Ensure only PRINCIPAL, HOD who requested it, or the original requester can delete
-    $current_user_id = $_SESSION['user']['id'];
-
-    if ($user_role == 'PRINCIPAL' || $user_role == 'HOD' || $requester_id == $current_user_id) {
-        // Proceed with deletion
+    // Check user role and permission to delete
+    if ($user_role == 'PRINCIPAL' || $user_role == 'HOD') {
+        // Perform deletion
         $delete_sql = "DELETE FROM bookings WHERE id = ?";
         $delete_stmt = $conn->prepare($delete_sql);
         $delete_stmt->bind_param("i", $booking_id);
 
         if ($delete_stmt->execute()) {
-            $_SESSION['message'] = "Booking deleted successfully.";
+            // Success message
+            header("HTTP/1.1 200 OK");
+            echo "Booking deleted successfully.";
         } else {
-            $_SESSION['message'] = "Error deleting booking: " . $delete_stmt->error;
+            // Error message
+            header("HTTP/1.1 500 Internal Server Error");
+            echo "Error deleting booking: " . $conn->error;
         }
         $delete_stmt->close();
     } else {
-        $_SESSION['message'] = "Unauthorized access to delete this booking.";
+        header("HTTP/1.1 403 Forbidden");
+        echo "Error: You do not have permission to delete this booking.";
     }
 } else {
-    $_SESSION['message'] = "Unauthorized access or missing booking ID.";
+    header("HTTP/1.1 405 Method Not Allowed");
+    echo "Error: Method not allowed.";
 }
 
-header("Location: approve_requests.php");
-exit();
+$conn->close();
 ?>

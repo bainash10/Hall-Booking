@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <label for="description">Description<span class="mandatory">*</span>:</label>
             <textarea name="description" id="description" rows="4" required><?php echo isset($description) ? $description : ''; ?></textarea><br>
             <label for="letter">Letter<span class="mandatory">*</span>:</label>
-            <input type="file" name="letter" id="letter" accept=".pdf,.doc,.docx" required><br>
+            <input type="file" name="letter" id="letter" accept=".pdf" required><br>
             <?php if (!empty($errors)) : ?>
                 <div id="error-message" class="error-message">
                     <?php foreach ($errors as $error) : ?>

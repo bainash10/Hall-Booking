@@ -80,25 +80,51 @@ $result = $conn->query($sql);
     <title>Approve Requests</title>
     <link rel="stylesheet" type="text/css" href="css/apstyle.css">
     <style>
-      .status-pending {
-    color: white;
-    background-color: orange;
-    font-weight: bold;
-}
+        .status-pending {
+            color: white;
+            background-color: orange;
+            font-weight: bold;
+        }
 
-.status-rejected {
-    color: white;
-    background-color: red;
-    font-weight: bold;
-}
+        .status-rejected {
+            color: white;
+            background-color: red;
+            font-weight: bold;
+        }
 
-.status-approved {
-    color: white;
-    background-color: green;
-    font-weight: bold;
-}
-
+        .status-approved {
+            color: white;
+            background-color: green;
+            font-weight: bold;
+        }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to handle delete action via AJAX
+            $(".delete-btn").click(function (event) {
+                event.preventDefault();
+                var booking_id = $(this).data('booking-id');
+                
+                if (confirm('Are you sure you want to delete this booking?')) {
+                    $.ajax({
+                        type: "POST",
+                        url: "delete_request.php",
+                        data: { booking_id: booking_id },
+                        success: function (response) {
+                            // Assuming the response is handled in delete_request.php
+                            alert(response); // Display success message or handle response accordingly
+                            // Update the table or reload content as needed
+                            location.reload(); // Reload the page to reflect changes
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Error: " + xhr.responseText);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -171,15 +197,9 @@ $result = $conn->query($sql);
                                 <button type="submit">Approve</button>
                             </form>
                         <?php } ?>
-                        <form method="POST" action="delete_request.php" onsubmit="return confirm('Are you sure you want to delete this booking?');">
-                            <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
-                            <button type="submit">Delete</button>
-                        </form>
+                        <button class="delete-btn" data-booking-id="<?php echo $row['id']; ?>">Delete</button>
                     <?php } elseif ($user_role == 'HOD') { ?>
-                        <form method="POST" action="delete_request.php" onsubmit="return confirm('Are you sure you want to delete this booking?');">
-                            <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
-                            <button type="submit">Delete</button>
-                        </form>
+                        <button class="delete-btn" data-booking-id="<?php echo $row['id']; ?>">Delete</button>
                     <?php } else { ?>
                         No actions available
                     <?php } ?>
