@@ -2,19 +2,17 @@
 include 'config.php';
 session_start();
 
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'ADMINISTRATIVE') {
+if (!isset($_SESSION['user'])) {
     header("Location: login.php");
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+$user_role = $_SESSION['user']['role'];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_role == 'PRINCIPAL') {
     $booking_id = $_POST['booking_id'];
     $status = $_POST['status'];
-    $approval_letter = $_FILES['approval_letter']['name'];
-
-    $target_dir = "uploads/letters/";
-    $target_file = $target_dir . basename($_FILES['approval_letter']['name']);
-    move_uploaded_file($_FILES['approval_letter']['tmp_name'], $target_file);
+    $approval_letter = addslashes(file_get_contents($_FILES['approval_letter']['tmp_name']));
 
     $sql = "UPDATE bookings SET status='$status', approval_letter='$approval_letter' WHERE id='$booking_id'";
 
@@ -25,11 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-$sql = "SELECT b.id, h.name as hall_name, u.name as user_name, b.event_name, b.speaker, b.start_time, b.end_time, b.letter, b.status 
+$sql = "SELECT b.id, h.name as hall_name, b.event_name, b.speaker, b.start_time, b.end_time, b.status, b.letter, u.name as user_name, u.college, u.department 
         FROM bookings b 
         JOIN halls h ON b.hall_id = h.id 
-        JOIN users u ON b.user_id = u.id 
-        WHERE b.status = 'PENDING'";
+        JOIN users u ON b.user_id = u.id";
 $result = $conn->query($sql);
 ?>
 
@@ -39,26 +36,51 @@ $result = $conn->query($sql);
     <title>Approve Requests</title>
 </head>
 <body>
-    <h1>Approve Booking Requests</h1>
-    <?php while ($row = $result->fetch_assoc()) { ?>
-        <div>
-            <h2>Booking Request #<?php echo $row['id']; ?></h2>
-            <p>Hall: <?php echo $row['hall_name']; ?></p>
-            <p>User: <?php echo $row['user_name']; ?></p>
-            <p>Event Name: <?php echo $row['event_name']; ?></p>
-            <p>Speaker: <?php echo $row['speaker']; ?></p>
-            <p>Start Time: <?php echo $row['start_time']; ?></p>
-            <p>End Time: <?php echo $row['end_time']; ?></p>
-            <p><a href="uploads/letters/<?php echo $row['letter']; ?>" target="_blank">View Letter</a></p>
-            <form method="POST" action="" enctype="multipart/form-data">
-                <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
-                <input type="file" name="approval_letter" accept="application/pdf" required><br>
-                <button type="submit" name="status" value="APPROVED">Approve</button>
-                <button type="submit" name="status" value="REJECTED">Reject</button>
-            </form>
-        </div>
-        <hr>
-    <?php } ?>
+    <table border="1">
+        <tr>
+            <th>Booking ID</th>
+            <th>Hall</th>
+            <th>Event Name</th>
+            <th>Speaker</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+            <th>Letter</th>
+            <th>User</th>
+            <th>College</th>
+            <th>Department</th>
+            <th>Action</th>
+        </tr>
+        <?php while ($row = $result->fetch_assoc()) { ?>
+            <tr>
+                <td><?php echo $row['id']; ?></td>
+                <td><?php echo $row['hall_name']; ?></td>
+                <td><?php echo $row['event_name']; ?></td>
+                <td><?php echo $row['speaker']; ?></td>
+                <td><?php echo $row['start_time']; ?></td>
+                <td><?php echo $row['end_time']; ?></td>
+                <td><?php echo $row['status']; ?></td>
+                <td><a href="view_letter.php?id=<?php echo $row['id']; ?>">View Letter</a></td>
+                <td><?php echo $row['user_name']; ?></td>
+                <td><?php echo $row['college']; ?></td>
+                <td><?php echo $row['department']; ?></td>
+                <td>
+                    <?php if ($row['status'] == 'PENDING' && $user_role == 'PRINCIPAL') { ?>
+                        <form method="POST" action="" enctype="multipart/form-data">
+                            <input type="hidden" name="booking_id" value="<?php echo $row['id']; ?>">
+                            <select name="status" required>
+                                <option value="APPROVED">Approve</option>
+                                <option value="REJECTED">Reject</option>
+                            </select><br>
+                            Approval Letter: <input type="file" name="approval_letter" accept=".pdf" required><br>
+                            <button type="submit">Submit</button>
+                        </form>
+                    <?php } else { ?>
+                        No actions available
+                    <?php } ?>
+                </td>
+            </tr>
+        <?php } ?>
+    </table>
 </body>
 </html>
-

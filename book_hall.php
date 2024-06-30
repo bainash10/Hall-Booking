@@ -2,10 +2,13 @@
 include 'config.php';
 session_start();
 
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'HOD') {
+if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['HOD', 'EXAMSECTION'])) {
     header("Location: login.php");
     exit();
 }
+
+$user = $_SESSION['user'];
+$allowed_college = $user['college'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hall_id = $_POST['hall_id'];
@@ -13,11 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $speaker = $_POST['speaker'];
     $start_time = $_POST['start_time'];
     $end_time = $_POST['end_time'];
-    $letter = $_FILES['letter']['name'];
-
-    $target_dir = "uploads/letters/";
-    $target_file = $target_dir . basename($_FILES['letter']['name']);
-    move_uploaded_file($_FILES['letter']['tmp_name'], $target_file);
+    $letter = addslashes(file_get_contents($_FILES['letter']['tmp_name']));
 
     $user_id = $_SESSION['user']['id'];
 
@@ -42,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Hall:
         <select name="hall_id" required>
             <?php
-            $sql = "SELECT * FROM halls";
+            $sql = "SELECT * FROM halls WHERE college='$allowed_college'";
             $result = $conn->query($sql);
             while ($row = $result->fetch_assoc()) {
-                echo "<option value='" . $row['id'] . "'>" . $row['name'] . " (" . $row['college'] . ")</option>";
+                echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
             }
             ?>
         </select><br>
@@ -53,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Speaker: <input type="text" name="speaker" required><br>
         Start Time: <input type="datetime-local" name="start_time" required><br>
         End Time: <input type="datetime-local" name="end_time" required><br>
-        Letter: <input type="file" name="letter" accept="application/pdf" required><br>
+        Letter: <input type="file" name="letter" accept=".pdf" required><br>
         <button type="submit">Book Hall</button>
     </form>
 </body>
