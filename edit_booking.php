@@ -8,7 +8,13 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user = $_SESSION['user'];
-$booking_id = $_GET['id'];
+
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    echo "No booking ID provided";
+    exit();
+}
+
+$booking_id = intval($_GET['id']);  // Ensure the ID is an integer
 
 $sql = "SELECT * FROM bookings WHERE id=$booking_id AND user_id=" . $user['id'];
 $result = $conn->query($sql);
@@ -25,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $speaker = $_POST['speaker'];
     $start_time = $_POST['start_time'];
     $end_time = $_POST['end_time'];
-    $letter = addslashes(file_get_contents($_FILES['letter']['tmp_name']));
+    $letter = !empty($_FILES['letter']['tmp_name']) ? addslashes(file_get_contents($_FILES['letter']['tmp_name'])) : $booking['letter'];
 
     $sql = "UPDATE bookings SET event_name='$event_name', speaker='$speaker', start_time='$start_time', end_time='$end_time', letter='$letter' WHERE id=$booking_id AND user_id=" . $user['id'];
 
@@ -50,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Speaker: <input type="text" name="speaker" value="<?php echo $booking['speaker']; ?>" required><br>
         Start Time: <input type="datetime-local" name="start_time" value="<?php echo date('Y-m-d\TH:i', strtotime($booking['start_time'])); ?>" required><br>
         End Time: <input type="datetime-local" name="end_time" value="<?php echo date('Y-m-d\TH:i', strtotime($booking['end_time'])); ?>" required><br>
-        Letter: <input type="file" name="letter" accept=".pdf,.doc,.docx" required><br>
+        Letter: <input type="file" name="letter" accept=".pdf,.doc,.docx"><br>
         <button type="submit">Update Booking</button>
     </form>
 
