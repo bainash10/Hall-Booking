@@ -8,6 +8,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user_role = $_SESSION['user']['role'];
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($user_role == 'PRINCIPAL' || $user_role == 'HOD')) {
     $booking_id = $_POST['booking_id'];
@@ -31,15 +32,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && ($user_role == 'PRINCIPAL' || $user_
         $delete_stmt->bind_param("i", $booking_id);
 
         if ($delete_stmt->execute()) {
-            echo "Booking deleted successfully";
+            $_SESSION['message'] = "Booking deleted successfully.";
         } else {
-            echo "Error deleting booking: " . $delete_stmt->error;
+            $_SESSION['message'] = "Error deleting booking: " . $delete_stmt->error;
         }
         $delete_stmt->close();
     } else {
-        echo "Unauthorized access to delete this booking.";
+        $_SESSION['message'] = "Unauthorized access to delete this booking.";
     }
 } else {
-    echo "Unauthorized access or missing booking ID.";
+    $_SESSION['message'] = "Unauthorized access or missing booking ID.";
 }
+
+header("Location: approve_requests.php");
+exit();
 ?>
