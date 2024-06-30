@@ -45,7 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if a new file was uploaded
     if (!empty($_FILES['letter']['tmp_name']) && is_uploaded_file($_FILES['letter']['tmp_name'])) {
-        $letter = file_get_contents($_FILES['letter']['tmp_name']);
+        $file_tmp = $_FILES['letter']['tmp_name'];
+        $file_ext = pathinfo($_FILES['letter']['name'], PATHINFO_EXTENSION);
+
+        // Validate file type
+        if ($file_ext != 'pdf') {
+            echo "Please upload a PDF file.";
+        } else {
+            // Read the contents of the uploaded file
+            $letter = file_get_contents($file_tmp);
+        }
     }
 
     // Validate if a file was uploaded
@@ -83,9 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Start Time: <input type="datetime-local" name="start_time" value="<?php echo $start_time; ?>" required><br>
         End Time: <input type="datetime-local" name="end_time" value="<?php echo $end_time; ?>" required><br>
         <?php if (!empty($letter)) : ?>
-        <p>Current Letter: <a href="download_letter.php?id=<?php echo $booking['id']; ?>"><?php echo "Download"; ?></a></p>
+        <p>Current Letter: <a href="download_letter.php?id=<?php echo $booking['id']; ?>">Download</a></p>
         <?php endif; ?>
-        New Letter: <input type="file" name="letter" accept=".pdf,.doc,.docx"><br>
+        If New Letter: <input type="file" name="letter" accept=".pdf"><br> <!-- Only accept PDF files -->
         <button type="submit">Update Booking</button>
     </form>
 

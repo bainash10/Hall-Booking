@@ -26,9 +26,9 @@ $booking = $result->fetch_assoc();
 $letter_content = $booking['letter'];
 $letter_name = $booking['event_name'] . '_' . $booking_id . '.pdf'; // Example: Use event name or other identifier as the file name
 
-// Set appropriate headers for PDF file download
+// Set appropriate headers for file display
 header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="' . $letter_name . '"');
+header('Content-Disposition: inline; filename="' . $letter_name . '"');
 
 // Output the file content
 echo $letter_content;
