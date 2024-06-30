@@ -1,8 +1,13 @@
--- Create the database
-CREATE DATABASE hall_booking;
+-- Create the database if it does not exist
+CREATE DATABASE IF NOT EXISTS hall_booking;
 
 -- Use the newly created database
 USE hall_booking;
+
+-- Drop tables if they exist to avoid conflicts in re-creating them
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS halls;
+DROP TABLE IF EXISTS users;
 
 -- Create the users table with the updated structure
 CREATE TABLE users (
@@ -23,7 +28,7 @@ CREATE TABLE halls (
     college ENUM('Khwopa Engineering College', 'Khwopa College of Engineering') NOT NULL
 );
 
--- Create the bookings table with the updated structure
+-- Create the bookings table with the updated structure including booking_id
 CREATE TABLE bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     hall_id INT NOT NULL,
@@ -32,6 +37,7 @@ CREATE TABLE bookings (
     speaker VARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
+    description TEXT NOT NULL,
     letter LONGBLOB NOT NULL,
     status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     approval_letter LONGBLOB NULL,

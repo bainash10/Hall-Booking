@@ -9,6 +9,13 @@ if (!isset($_SESSION['user'])) {
 
 $user = $_SESSION['user'];
 
+$message = ""; // Initialize message variable
+
+// Check if deletion request was made
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['delete_message'])) {
+    $message = $_GET['delete_message'];
+}
+
 $sql = "SELECT b.*, h.name as hall_name FROM bookings b 
         JOIN halls h ON b.hall_id = h.id 
         WHERE b.user_id=" . $user['id'];
@@ -23,6 +30,11 @@ $result = $conn->query($sql);
 </head>
 <body>
     <h1>My Bookings</h1>
+
+    <?php if (!empty($message)) : ?>
+        <div class="message"><?php echo $message; ?></div>
+    <?php endif; ?>
+
     <table>
         <tr>
             <th>Event Name</th>
@@ -45,6 +57,7 @@ $result = $conn->query($sql);
                     <a href="view_letter.php?id=<?php echo $row['id']; ?>">View Letter</a>
                     <?php if ($row['status'] == 'PENDING') { ?>
                         <a href="edit_booking.php?id=<?php echo $row['id']; ?>">Edit</a>
+                        <a href="delete_booking.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</a>
                     <?php } ?>
                 </td>
             </tr>

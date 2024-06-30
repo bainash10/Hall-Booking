@@ -25,16 +25,19 @@ $user = $_SESSION['user'];
             <?php } ?>
             <?php if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])) { ?>
                 <li><a href="approve_request.php">View Requests</a></li>
+                <li><a href="registered_users.php">Registered Users</a></li> <!-- Link to view all registered users -->
             <?php } ?>
             <?php if ($user['role'] == 'ADMINISTRATIVE') { ?>
                 <li><a href="register.php">Register User</a></li>
             <?php } ?>
             <li><a href="view_profile.php">View Profile</a></li>
+            <?php if ($user['role'] == 'ADMINISTRATIVE') { ?>
             <li><a href="edit_profile.php">Edit Profile</a></li>
-            <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])) { ?>
-            <li><a href="view_bookings.php">My Bookings</a></li>
             <?php } ?>
-            
+            <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])) { ?>
+                <li><a href="view_bookings.php">My Bookings</a></li>
+            <?php } ?>
+
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </nav>
