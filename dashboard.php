@@ -130,47 +130,109 @@ $user = $_SESSION['user'];
     </div>
     <!-- /.sidebar -->
   </aside>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0">Dashboard</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <!-- Breadcrumb -->
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Dashboard</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <!-- Breadcrumb -->
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
-
-    <!-- Main content -->
-    <section class="content">
-      <div class="container-fluid">
-        <!-- Main row -->
-        <div class="row">
-          <!-- Content here -->
-          <div class="col-md-12">
-            <div class="alert alert-info">
-              <h5>Welcome, <?php echo $user['name']; ?></h5>
-              <p>Your role: <?php echo $user['role']; ?></p>
-            </div>
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <!-- Main row -->
+      <div class="row">
+        <!-- Welcome Message -->
+        <div class="col-md-12">
+          <div class="alert alert-info">
+            <h5>Welcome, <?php echo $user['name']; ?></h5>
+            <p>Your role: <?php echo $user['role']; ?></p>
           </div>
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+
+        <!-- Sidebar Menu Cards -->
+        <div class="col-md-4">
+              <!-- Dashboard Menu Card -->
+                  <!-- Dashboard Menu Card -->
+<div class="card">
+    <div class="card-header bg-primary">
+        <h3 class="card-title">Dashboard Menu</h3>
+    </div>
+    <div class="card-body">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            <div class="col mb-4">
+                <div class="bg-info p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="dashboard.php" class="text-white text-decoration-none">Dashboard</a></h5>
+                </div>
+            </div>
+            <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])): ?>
+            <div class="col mb-4">
+                <div class="bg-success p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="book_hall.php" class="text-white text-decoration-none">Book Hall</a></h5>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])): ?>
+            <div class="col mb-4">
+                <div class="bg-warning p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="approve_request.php" class="text-white text-decoration-none">View Requests</a></h5>
+                </div>
+            </div>
+            <div class="col mb-4">
+                <div class="bg-danger p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="registered_users.php" class="text-white text-decoration-none">Registered Users</a></h5>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php if ($user['role'] == 'ADMINISTRATIVE'): ?>
+            <div class="col mb-4">
+                <div class="bg-primary p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="register.php" class="text-white text-decoration-none">Register User</a></h5>
+                </div>
+            </div>
+            <?php endif; ?>
+            <div class="col mb-4">
+                <div class="bg-secondary p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="view_profile.php" class="text-white text-decoration-none">View Profile</a></h5>
+                </div>
+            </div>
+            <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])): ?>
+            <div class="col mb-4">
+                <div class="bg-info p-4 rounded text-center h-100 d-flex align-items-center justify-content-center">
+                    <h5><a href="view_bookings.php" class="text-white text-decoration-none">My Bookings</a></h5>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+    
+          <!-- /.card -->
+        </div>
+
+
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
@@ -180,12 +242,10 @@ $user = $_SESSION['user'];
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <!-- To the right -->
-    <div class="float-right d-none d-sm-inline">
-      Developed by Nischal Baidar
-    </div>
-    <!-- Default to the left -->
-    &copy; 2024 Book The Hall
+    
+    Developed by Nischal Baidar
+   
+    
   </footer>
 </div>
 <!-- ./wrapper -->

@@ -1,38 +1,67 @@
 <?php
+include 'config.php';
 session_start();
-require_once 'config.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
+    header("HTTP/1.1 403 Forbidden");
+    exit("Error: Unauthorized access. Please log in.");
 }
 
-// Check if user has permission to delete users
-if ($_SESSION['user']['role'] !== 'PRINCIPAL') {
-    // Redirect to dashboard or show error message
-    header("Location: dashboard.php");
-    exit();
-}
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user_role = $_SESSION['user']['role'];
+    $user_id = $_POST['user_id'];
 
-// Check if ID is provided and is numeric
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $user_id = $_GET['id'];
+    // Check user role and permission to delete
+    if ($user_role == 'PRINCIPAL' || $user_role == 'ADMINISTRATIVE' ) {
+        // Fetch user details to get the roll_no
+        $sql = "SELECT roll_no FROM users WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $stmt->bind_result($roll_no);
+        $stmt->fetch();
+        $stmt->close();
 
-    // Delete user from database
-    $sql = "DELETE FROM users WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $stmt->close();
+        if ($roll_no) {
+            // Delete user photo
+            $photo_path = 'uploads/users_photo/' . $roll_no . '.jpg'; // Adjust the extension if needed
+            if (file_exists($photo_path)) {
+                unlink($photo_path);
+            }
 
-    // Redirect back to registered users page
-    header("Location: registered_users.php");
-    exit();
+            // Delete related bookings
+            $sql = "DELETE FROM bookings WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $stmt->close();
+
+            // Delete user from database
+            $sql = "DELETE FROM users WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $user_id);
+            if ($stmt->execute()) {
+                // Success message
+                header("HTTP/1.1 200 OK");
+                echo "User and their bookings have been deleted successfully.";
+            } else {
+                // Error message
+                header("HTTP/1.1 500 Internal Server Error");
+                echo "Error deleting user: " . $conn->error;
+            }
+            $stmt->close();
+        } else {
+            // Set error message if user not found
+            header("HTTP/1.1 404 Not Found");
+            echo "User not found.";
+        }
+    } else {
+        header("HTTP/1.1 403 Forbidden");
+        echo "Error: You do not have permission to delete this user.";
+    }
 } else {
-    // Handle invalid ID or no ID provided
-    header("Location: registered_users.php");
-    exit();
+    header("HTTP/1.1 405 Method Not Allowed");
+    echo "Error: Method not allowed.";
 }
 
 $conn->close();

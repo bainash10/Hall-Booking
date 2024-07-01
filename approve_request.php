@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $user_role == 'PRINCIPAL') {
 }
 
 // Fetch all bookings
-$sql = "SELECT b.id, h.name as hall_name, b.event_name, b.speaker, b.start_time, b.end_time, b.status, b.letter_path, u.name as user_name, u.college, u.department 
+$sql = "SELECT b.id, h.name as hall_name, b.event_name, b.speaker, b.start_time, b.end_time, b.status, u.name as user_name, u.college, u.department 
         FROM bookings b 
         JOIN halls h ON b.hall_id = h.id 
         JOIN users u ON b.user_id = u.id";
@@ -149,7 +149,6 @@ $result = $conn->query($sql);
             <th>User</th>
             <th>College</th>
             <th>Department</th>
-            <th>Request Letter</th>
             <th>Actions</th>
         </tr>
         <?php while ($row = $result->fetch_assoc()) { 
@@ -174,13 +173,6 @@ $result = $conn->query($sql);
                 <td><?php echo $row['user_name']; ?></td>
                 <td><?php echo $row['college']; ?></td>
                 <td><?php echo $row['department']; ?></td>
-                <td>
-                    <?php if (!empty($row['letter_path'])) : ?>
-                        <a href="<?php echo $row['letter_path']; ?>" target="_blank">View Request Letter</a>
-                    <?php else : ?>
-                        No Request Letter
-                    <?php endif; ?>
-                </td>
                 <td>
                     <?php if ($user_role == 'PRINCIPAL') { ?>
                         <?php if ($row['status'] == 'PENDING') { ?>

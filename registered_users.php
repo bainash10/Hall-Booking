@@ -37,27 +37,6 @@ if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])) {
 <head>
     <title>Registered Users</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
-    <!-- <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-        .action-buttons a {
-            margin-right: 10px;
-        }
-    </style> -->
 </head>
 <body>
     <h1>Registered Users</h1>
@@ -68,6 +47,10 @@ if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])) {
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </nav>
+
+    <?php if (isset($_SESSION['message'])): ?>
+        <p><?php echo $_SESSION['message']; unset($_SESSION['message']); ?></p>
+    <?php endif; ?>
 
     <section>
         <?php if (!empty($registered_users)) : ?>
@@ -94,7 +77,7 @@ if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])) {
                             <td><?php echo $user['department']; ?></td>
                             <td class="action-buttons">
                                 <a href="edit_profile.php?id=<?php echo $user['id']; ?>">Edit</a>
-                                <a href="delete_user.php?id=<?php echo $user['id']; ?>" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                                <a href="#" onclick="confirmDelete(<?php echo $user['id']; ?>)">Delete</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -108,6 +91,26 @@ if (in_array($user['role'], ['ADMINISTRATIVE', 'PRINCIPAL'])) {
     <footer>
         <p>Developed by Nischal Baidar</p>
     </footer>
+
+    <script>
+    function confirmDelete(userId) {
+        if (confirm('Are you sure you want to delete this user?')) {
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'delete_user.php';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'user_id';
+            input.value = userId;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    </script>
 </body>
 </html>
 
