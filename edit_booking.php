@@ -34,7 +34,7 @@ $event_name = $booking['event_name'];
 $speaker = $booking['speaker'];
 $start_time = date('Y-m-d\TH:i', strtotime($booking['start_time']));
 $end_time = date('Y-m-d\TH:i', strtotime($booking['end_time']));
-$letter = $booking['letter']; // Default to existing letter
+$letter_path = $booking['letter_path']; // Path to existing letter
 
 // Check if form submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -51,30 +51,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate file type
         if ($file_ext != 'pdf') {
             echo "Please upload a PDF file.";
+            exit();
+        }
+
+        // Remove the old file if it exists
+        if (file_exists($letter_path)) {
+            unlink($letter_path);
+        }
+
+        // Generate new file path
+        $upload_dir = 'uploads/letters/';
+        $new_filename = 'booking_id_' . $booking_id . '.pdf';
+        $new_file_path = $upload_dir . $new_filename;
+
+        // Move the new uploaded file to the designated directory
+        if (move_uploaded_file($file_tmp, $new_file_path)) {
+            $letter_path = $new_file_path; // Update the path to the new file
         } else {
-            // Read the contents of the uploaded file
-            $letter = file_get_contents($file_tmp);
+            echo "Error: Failed to upload new file.";
+            exit();
         }
     }
 
-    // Validate if a file was uploaded
-    if (empty($_FILES['letter']['tmp_name']) && empty($letter)) {
-        echo "Please choose a file for the letter.";
+    // Validate if start time is not in the past
+    if (strtotime($start_time) <= time()) {
+        echo "Error: Start time should be in the future.";
+        exit();
+    }
+
+    // Validate if end time is after start time
+    if (strtotime($end_time) <= strtotime($start_time)) {
+        echo "Error: End time should be after start time.";
+        exit();
+    }
+
+    // Prepare and execute the SQL update query
+    $sql = "UPDATE bookings SET event_name=?, speaker=?, start_time=?, end_time=?, letter_path=? WHERE id=? AND user_id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssssi", $event_name, $speaker, $start_time, $end_time, $letter_path, $booking_id, $user['id']);
+
+    if ($stmt->execute()) {
+        echo "Booking updated successfully";
+        // Optionally redirect or perform other actions after successful update
     } else {
-        // Prepare and execute the SQL update query
-        $sql = "UPDATE bookings SET event_name=?, speaker=?, start_time=?, end_time=?, letter=? WHERE id=? AND user_id=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssi", $event_name, $speaker, $start_time, $end_time, $letter, $booking_id, $user['id']);
-
-        if ($stmt->execute()) {
-            echo "Booking updated successfully";
-            // Optionally redirect or perform other actions after successful update
-        } else {
-            echo "Error updating booking: " . $stmt->error;
-        }
-
-        $stmt->close();
+        echo "Error updating booking: " . $stmt->error;
     }
+
+    $stmt->close();
 }
 ?>
 
@@ -91,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Speaker: <input type="text" name="speaker" value="<?php echo htmlspecialchars($speaker); ?>" required><br>
         Start Time: <input type="datetime-local" name="start_time" value="<?php echo $start_time; ?>" required><br>
         End Time: <input type="datetime-local" name="end_time" value="<?php echo $end_time; ?>" required><br>
-        <?php if (!empty($letter)) : ?>
+        <?php if (!empty($letter_path)) : ?>
         <p>Current Letter: <a href="download_letter.php?id=<?php echo $booking['id']; ?>">Download</a></p>
         <?php endif; ?>
         If New Letter: <input type="file" name="letter" accept=".pdf"><br> <!-- Only accept PDF files -->

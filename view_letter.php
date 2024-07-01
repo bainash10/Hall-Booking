@@ -22,16 +22,19 @@ if ($result->num_rows == 0) {
 
 $booking = $result->fetch_assoc();
 
-// Assuming 'letter' field stores the file content, adjust according to your database schema
-$letter_content = $booking['letter'];
-$letter_name = $booking['event_name'] . '_' . $booking_id . '.pdf'; // Example: Use event name or other identifier as the file name
+// Assuming 'letter_path' field stores the file path, adjust according to your database schema
+$letter_path = $booking['letter_path'];
 
-// Set appropriate headers for file display
-header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="' . $letter_name . '"');
-
-// Output the file content
-echo $letter_content;
+if (file_exists($letter_path)) {
+    // Set appropriate headers for file display
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: inline; filename="' . basename($letter_path) . '"');
+    
+    // Output the file content
+    readfile($letter_path);
+} else {
+    echo "Error: File not found.";
+}
 
 $stmt->close();
 ?>

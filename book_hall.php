@@ -76,18 +76,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Handle file upload and store in database
-    $letter_content = file_get_contents($letter_tmpname);
-    $letter_content = mysqli_real_escape_string($conn, $letter_content);
-
-    $sql = "INSERT INTO bookings (hall_id, user_id, event_name, speaker, start_time, end_time, description, letter, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')";
+    // Handle file upload and store in filesystem
+    $upload_dir = 'uploads/letters/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0777, true); // Create uploads directory if it doesn't exist
+    }
+    
+    // Insert booking details first to get the booking ID
+    $sql = "INSERT INTO bookings (hall_id, user_id, event_name, speaker, start_time, end_time, description, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING')";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iissssss", $hall_id, $_SESSION['user']['id'], $event_name, $speaker, $start_time, $end_time, $description, $letter_content);
+    $stmt->bind_param("iisssss", $hall_id, $_SESSION['user']['id'], $event_name, $speaker, $start_time, $end_time, $description);
 
     if ($stmt->execute()) {
         $booking_id = $stmt->insert_id; // Get the auto-generated booking ID
-        echo "Booking request submitted successfully. Booking ID: $booking_id";
+        
+        // Generate the new file name using booking ID
+        $new_filename = 'booking_id_' . $booking_id . '.pdf';
+        $file_path = $upload_dir . $new_filename;
+        
+        // Move the uploaded file to the designated directory
+        if (move_uploaded_file($letter_tmpname, $file_path)) {
+            // Update the booking record with the file path
+            $sql = "UPDATE bookings SET letter_path = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $file_path, $booking_id);
+            if ($stmt->execute()) {
+                echo "Booking request submitted successfully. Booking ID: $booking_id";
+            } else {
+                echo "Error: " . $stmt->error;
+            }
+        } else {
+            echo "Error: Failed to upload file.";
+        }
     } else {
         echo "Error: " . $stmt->error;
     }
