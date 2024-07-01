@@ -43,6 +43,7 @@ $result = $conn->query($sql);
             <th>End Time</th>
             <th>Hall</th>
             <th>Status</th>
+            <th>Request Letter</th>
             <th>Approval Letter</th>
             <th>Actions</th>
         </tr>
@@ -55,12 +56,21 @@ $result = $conn->query($sql);
                 <td><?php echo $row['hall_name']; ?></td>
                 <td><?php echo $row['status']; ?></td>
                 <td>
+                    <?php if (!empty($row['letter_path'])) : ?>
+                        <a href="<?php echo $row['letter_path']; ?>" target="_blank">View Request Letter</a>
+                    <?php else : ?>
+                        No Request Letter
+                    <?php endif; ?>
+                </td>
+                <td>
                     <?php if ($row['status'] == 'APPROVED' && !empty($row['approval_letter_path'])) : ?>
                         <a href="<?php echo $row['approval_letter_path']; ?>" target="_blank">View Approval Letter</a>
                     <?php elseif ($row['status'] == 'APPROVED' && empty($row['approval_letter_path'])) : ?>
                         No Approval Letter
-                    <?php else : ?>
+                    <?php elseif ($row['status'] == 'PENDING') : ?>
                         Pending Approval
+                    <?php else : ?>
+                        Approval Not Granted
                     <?php endif; ?>
                 </td>
                 <td>
