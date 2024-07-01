@@ -27,6 +27,25 @@ $result = $conn->query($sql);
 <head>
     <title>View Bookings</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <style>
+        .status-pending {
+            color: white;
+            background-color: orange;
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            color: white;
+            background-color: red;
+            font-weight: bold;
+        }
+
+        .status-approved {
+            color: white;
+            background-color: green;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>My Bookings</h1>
@@ -54,10 +73,19 @@ $result = $conn->query($sql);
                 <td><?php echo $row['start_time']; ?></td>
                 <td><?php echo $row['end_time']; ?></td>
                 <td><?php echo $row['hall_name']; ?></td>
-                <td><?php echo $row['status']; ?></td>
+                <td class="<?php 
+                    if ($row['status'] == 'PENDING') {
+                        echo 'status-pending';
+                    } elseif ($row['status'] == 'REJECTED') {
+                        echo 'status-rejected';
+                    } elseif ($row['status'] == 'APPROVED' && !empty($row['approval_letter_path'])) {
+                        echo 'status-approved';
+                    } ?>">
+                    <?php echo $row['status']; ?>
+                </td>
                 <td>
                     <?php if (!empty($row['letter_path'])) : ?>
-                        <a href="<?php echo $row['letter_path']; ?>" target="_blank">View Request Letter</a>
+                        <a href="view_letter.php?id=<?php echo $row['id']; ?>" target="_blank">View Request Letter</a>
                     <?php else : ?>
                         No Request Letter
                     <?php endif; ?>
