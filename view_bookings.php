@@ -56,6 +56,7 @@ $result = $conn->query($sql);
 
     <table>
         <tr>
+            <th>Booking ID</th> <!-- New column for Booking ID -->
             <th>Event Name</th>
             <th>Speaker</th>
             <th>Start Time</th>
@@ -68,6 +69,7 @@ $result = $conn->query($sql);
         </tr>
         <?php while ($row = $result->fetch_assoc()) { ?>
             <tr>
+                <td><?php echo $row['id']; ?></td> <!-- Display Booking ID -->
                 <td><?php echo $row['event_name']; ?></td>
                 <td><?php echo $row['speaker']; ?></td>
                 <td><?php echo $row['start_time']; ?></td>

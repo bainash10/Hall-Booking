@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = md5($_POST['password']);
     $role = $_POST['role'];
     $college = $_POST['college'] ?? null;
+    $college_id = $_POST['college_id'] ?? null; // New field for College ID
     $department = null; // Initialize department to null
 
     // Set department only if role is 'HOD'
@@ -36,15 +37,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if a file was uploaded
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $photo = addslashes(file_get_contents($_FILES['photo']['tmp_name']));
+        // Get file extension
+        $photo_extension = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        // Generate filename based on college ID
+        $photo_filename = $college_id . "." . $photo_extension;
+        // Upload directory
+        $upload_directory = "uploads/users_photo/";
+        // Path to store in database
+        $photo_path = $upload_directory . $photo_filename;
+        // Move uploaded file to directory
+        move_uploaded_file($_FILES['photo']['tmp_name'], $upload_directory . $photo_filename);
     } else {
-        $photo = null; // or handle this case according to your requirements
+        $photo_path = null; // or handle this case according to your requirements
     }
 
     // Insert new user
-    $sql = "INSERT INTO users (name, email, password, role, college, department, photo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO users (name, email, password, role, college, department, user_photo, roll_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssss", $name, $email, $password, $role, $college, $department, $photo);
+    $stmt->bind_param("ssssssss", $name, $email, $password, $role, $college, $department, $photo_path, $college_id);
 
     if ($stmt->execute()) {
         echo "User registered successfully";
@@ -73,22 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const collegeFields = document.getElementById('collegeFields');
             const departmentField = document.getElementById('departmentField');
             const photoField = document.getElementById('photoField');
+            const collegeIdField = document.getElementById('collegeIdField'); // New field for College ID
 
             if (role === 'HOD') {
                 collegeFields.style.display = 'block';
                 departmentField.style.display = 'block';
                 photoField.style.display = 'block';
+                collegeIdField.style.display = 'block'; // Show College ID field
             } else if (role === 'PRINCIPAL' || role === 'EXAMSECTION') {
                 collegeFields.style.display = 'block';
                 departmentField.style.display = 'none';
                 photoField.style.display = 'block';
-
-                // Reset department field to null
-                document.getElementById('department').value = '';
+                collegeIdField.style.display = 'none'; // Hide College ID field for Principal and Exam Section
             } else {
                 collegeFields.style.display = 'none';
                 departmentField.style.display = 'none';
                 photoField.style.display = 'none';
+                collegeIdField.style.display = 'none'; // Hide College ID field for other roles
             }
 
             // Call the function to show departments based on the initially selected college
@@ -128,6 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
     <form method="POST" action="" enctype="multipart/form-data">
+        <div id="collegeIdField" style="display:none;">
+            College ID<span class="required">*</span>: 
+            <input type="text" name="college_id" required pattern="[0-9]*" inputmode="numeric" onkeypress="return event.charCode >= 48 && event.charCode <= 57"><br>
+        </div>
+
         Name<span class="required">*</span>: <input type="text" name="name" required><br>
         Email<span class="required">*</span>: <input type="email" name="email" required><br>
         Password<span class="required">*</span>: <input type="password" name="password" required><br>
@@ -150,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Options will be populated based on college selection -->
             </select><br>
         </div>
+       
         <div id="photoField" style="display:none;">
             Photo: <input type="file" name="photo" accept="image/*"><br>
         </div>
