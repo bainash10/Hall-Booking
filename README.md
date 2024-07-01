@@ -38,7 +38,7 @@ To deploy this application locally or on a server, follow these steps:
 
 
 2. **Database Setup**:
-- Import the `database.sql` file into your MySQL database.
+- Import the `hall_booking.sql` file into your MySQL database.
 - Update `config.php` with your database credentials.
 
 3. **File Permissions**:
