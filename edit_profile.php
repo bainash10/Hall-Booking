@@ -29,11 +29,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $password = isset($user['password']) ? $user['password'] : '';  // Keep the existing password if none is provided
     }
-    $photo = !empty($_FILES['photo']['tmp_name']) ? addslashes(file_get_contents($_FILES['photo']['tmp_name'])) : (isset($user['photo']) ? $user['photo'] : '');
 
-    $update_sql = "UPDATE users SET name=?, email=?, password=?, photo=? WHERE id=?";
+    // Handle photo upload
+    if (!empty($_FILES['photo']['tmp_name'])) {
+        // Delete existing photo file if exists
+        if (!empty($user['photo']) && file_exists($user['photo'])) {
+            unlink($user['photo']);
+        }
+
+        // Upload new photo
+        $upload_dir = 'uploads/users_photo/';
+        $photo_extension = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        $photo_name = $user['roll_no'] . '.' . $photo_extension;
+        $photo_path = $upload_dir . $photo_name;
+
+        if (move_uploaded_file($_FILES['photo']['tmp_name'], $photo_path)) {
+            // Update photo path in database
+            $update_photo_sql = "UPDATE users SET photo = ? WHERE id = ?";
+            $update_photo_stmt = $conn->prepare($update_photo_sql);
+            $update_photo_stmt->bind_param("si", $photo_path, $user_id);
+            if ($update_photo_stmt->execute()) {
+                // Update $user['photo'] to reflect new path
+                $user['photo'] = $photo_path;
+            } else {
+                echo "Failed to update photo path in database.";
+            }
+            $update_photo_stmt->close();
+        } else {
+            echo "Failed to upload photo.";
+        }
+    }
+
+    // Update user details
+    $update_sql = "UPDATE users SET name=?, email=?, password=? WHERE id=?";
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("ssssi", $name, $email, $password, $photo, $user_id);
+    $update_stmt->bind_param("sssi", $name, $email, $password, $user_id);
 
     if ($update_stmt->execute()) {
         echo "User updated successfully";
@@ -60,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Name: <input type="text" name="name" value="<?php echo isset($user['name']) ? $user['name'] : ''; ?>" required><br>
         Email: <input type="email" name="email" value="<?php echo isset($user['email']) ? $user['email'] : ''; ?>" required><br>
         Password: <input type="password" name="password" placeholder="Leave blank to keep current password"><br>
+        <?php if (!empty($user['photo'])): ?>
+            <p>Current Photo:</p>
+            <img src="<?php echo htmlspecialchars($user['photo']); ?>" alt="Current Photo" style="max-width: 200px; height: auto;">
+            <br><br>
+        <?php endif; ?>
         Photo: <input type="file" name="photo" accept="image/*"><br>
         <button type="submit">Update User</button>
     </form>

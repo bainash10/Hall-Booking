@@ -31,9 +31,9 @@ $user = $_SESSION['user'];
                 <li><a href="register.php">Register User</a></li>
             <?php } ?>
             <li><a href="view_profile.php">View Profile</a></li>
-            <?php if ($user['role'] == 'ADMINISTRATIVE') { ?>
+            <!-- <?php if ($user['role'] == 'ADMINISTRATIVE') { ?>
             <li><a href="edit_profile.php">Edit Profile</a></li>
-            <?php } ?>
+            <?php } ?> -->
             <?php if (in_array($user['role'], ['HOD', 'EXAMSECTION'])) { ?>
                 <li><a href="view_bookings.php">My Bookings</a></li>
             <?php } ?>

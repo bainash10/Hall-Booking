@@ -33,7 +33,7 @@ $stmt->close();
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color:#FFFFFF;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 0;
         }
@@ -43,7 +43,7 @@ $stmt->close();
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f0f0f0;
+            background-color: #fff;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .profile-container h1 {
@@ -111,7 +111,7 @@ $stmt->close();
     </div>
 
     <footer>
-        <p style="color:#FFFFFF">Developed by Nischal Baidar</p>
+        <p>Developed by Nischal Baidar</p>
     </footer>
 </body>
 </html>
