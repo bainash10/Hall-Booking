@@ -44,7 +44,7 @@ To deploy this application locally or on a server, follow these steps:
 3. **File Permissions**:
 - Ensure `uploads/letters/` directory has write permissions for storing PDF files.
 
-#Remember **adminpass** is the key for admin login here change accordingly !
+-Remember **'adminpass'** is the key for admin login here change accordingly !
 
 ## Usage
 
