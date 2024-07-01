@@ -43,6 +43,7 @@ $result = $conn->query($sql);
             <th>End Time</th>
             <th>Hall</th>
             <th>Status</th>
+            <th>Approval Letter</th>
             <th>Actions</th>
         </tr>
         <?php while ($row = $result->fetch_assoc()) { ?>
@@ -54,7 +55,15 @@ $result = $conn->query($sql);
                 <td><?php echo $row['hall_name']; ?></td>
                 <td><?php echo $row['status']; ?></td>
                 <td>
-                    <a href="view_letter.php?id=<?php echo $row['id']; ?>">View Letter</a>
+                    <?php if ($row['status'] == 'APPROVED' && !empty($row['approval_letter_path'])) : ?>
+                        <a href="<?php echo $row['approval_letter_path']; ?>" target="_blank">View Approval Letter</a>
+                    <?php elseif ($row['status'] == 'APPROVED' && empty($row['approval_letter_path'])) : ?>
+                        No Approval Letter
+                    <?php else : ?>
+                        Pending Approval
+                    <?php endif; ?>
+                </td>
+                <td>
                     <?php if ($row['status'] == 'PENDING') { ?>
                         <a href="edit_booking.php?id=<?php echo $row['id']; ?>">Edit</a>
                         <a href="delete_booking.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</a>

@@ -16,7 +16,6 @@ $booking_id = $_SESSION['booking_id'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_FILES['approval_letter']) && $_FILES['approval_letter']['error'] === UPLOAD_ERR_OK) {
-        $approval_letter_name = $_FILES['approval_letter']['name'];
         $approval_letter_tmp = $_FILES['approval_letter']['tmp_name'];
         $file_type = mime_content_type($approval_letter_tmp);
 
@@ -32,12 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             mkdir($upload_dir, 0777, true);
         }
 
-        $approval_letter_path = $upload_dir . basename($approval_letter_name);
+        $approval_letter_path = $upload_dir . 'approval_letter_' . $booking_id . '.pdf';
 
         if (move_uploaded_file($approval_letter_tmp, $approval_letter_path)) {
             // Update the booking status and approval letter path in the database
             $status = 'APPROVED';
-            $sql_update_booking = "UPDATE bookings SET status=?, approval_letter=? WHERE id=?";
+            $sql_update_booking = "UPDATE bookings SET status=?, approval_letter_path=? WHERE id=?";
             $update_stmt = $conn->prepare($sql_update_booking);
             $update_stmt->bind_param("ssi", $status, $approval_letter_path, $booking_id);
 
